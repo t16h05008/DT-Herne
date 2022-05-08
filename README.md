@@ -10,5 +10,5 @@ The project is divided into multiple sub-repositories. This repository serves as
 - ### [Backend](https://github.com/t16h05008/Digital_Twin_Herne_Backend)
     Contains the Node.js backend server.
 
-- ### [Database](https://github.com/t16h05008/Digital_Twin_Herne_Backend)
+- ### [Database](https://github.com/t16h05008/Digital_Twin_Herne_Database)
     Contains things related to the database.
