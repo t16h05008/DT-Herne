@@ -6,6 +6,7 @@
   - [Components](#components)
   - [Contributing Organizations and Contact](#contributing-organizations-and-contact)
     - [Additional Contributors](#additional-contributors)
+    - [License](#license)
 
 ## Overview
 A prototypical implementation of a Digital Twin for the city of Herne in Germany, focusing on the underground structural infrastructure. It was created in cooperation with the Bochum University of Applied Sciences and was initially based on a master's thesis. **The project is still in an experimental state and under active development**. The project goals are:
@@ -68,3 +69,6 @@ The project is divided into multiple sub-repositories. This repository serves as
 ### Additional Contributors
 - [City of Herne, Department for Cadaster and Geoinformation](https://www.herne.de/Rathaus/Buergerservice/Die-Stadtverwaltung-im-Ueberblick/Fachbereich-Vermessung-und-Kataster/)
 - [Stadtentwässerung Herne](https://www.se-herne.de/)
+
+### License
+Released under the [MIT License](https://github.com/t16h05008/DT-Herne/blob/master/LICENSE).
