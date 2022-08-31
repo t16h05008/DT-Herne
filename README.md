@@ -30,15 +30,7 @@ The project is divided into multiple sub-repositories. This repository serves as
 <!-- Insert links to potential publications as additional documentation here -->
 
 ## Contributing Organizations and Contact
-<style>
-    #contacts-table th {
-        text-align: center
-    }
-    #contacts-table td {
-        text-align: center
-    }
-</style>
-<table id="contacts-table">
+<table>
     <thead>
         <tr>
             <th>Organization</th>
