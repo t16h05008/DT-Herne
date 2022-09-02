@@ -1,12 +1,12 @@
-# Digital Twin Herne
+# Digital Twin Herne <!-- omit in toc -->
 
 **Table of Content**
-- [Digital Twin Herne](#digital-twin-herne)
-  - [Overview](#overview)
-  - [Components](#components)
-  - [Contributing Organizations and Contact](#contributing-organizations-and-contact)
-    - [Additional Contributors](#additional-contributors)
-    - [License](#license)
+- [Overview](#overview)
+- [Components](#components)
+- [Architecture Overview (German)](#architecture-overview-german)
+- [Contributing Organizations and Contact](#contributing-organizations-and-contact)
+  - [Additional Contributors](#additional-contributors)
+  - [License](#license)
 
 ## Overview
 A prototypical implementation of a Digital Twin for the city of Herne in Germany, focusing on the underground structural infrastructure. It was created in cooperation with the Bochum University of Applied Sciences and was initially based on a master's thesis. **The project is still in an experimental state and under active development**. The project goals are:
