@@ -1,9 +1,9 @@
 # Digital Twin Herne <!-- omit in toc -->
 
+
 **Table of Content**
 - [Overview](#overview)
 - [Components](#components)
-- [Architecture Overview (German)](#architecture-overview-german)
 - [Contributing Organizations and Contact](#contributing-organizations-and-contact)
   - [Additional Contributors](#additional-contributors)
   - [License](#license)
