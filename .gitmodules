@@ -7,3 +7,6 @@
 [submodule "DT-Herne-Data-Management"]
 	path = DT-Herne-Data-Management
 	url = https://github.com/t16h05008/DT-Herne-Data-Management
+[submodule "DT-Herne-Database"]
+	path = DT-Herne-Database
+	url = https://github.com/t16h05008/DT-Herne-Database.git
