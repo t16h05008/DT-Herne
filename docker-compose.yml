@@ -1,0 +1,64 @@
+version: '3.9'
+services:
+  mongodb:
+    container_name: "database"
+    image: mongo:4.4.5
+    restart: always
+    networks:
+      myNetwork:
+        aliases:
+          - database
+    expose:
+      - 27017 # expose to other containers on the same network only
+  
+  # Used to populate the mongodb, then exits
+  mongo-seed:
+    container_name: "database-seed"
+    build: ./DT-Herne-Database/data # use the dockerfile in this subdirectory
+    networks:
+      - myNetwork
+    depends_on:
+      - mongodb # db has to be up first
+  
+  backend:
+    container_name: backend
+    restart: always
+    build: DT-Herne-Backend/ # Use the dockerfile in this directory to build
+    # Couldn't get container-network internal communication to work so far.
+    # expose:
+    #    - 8000
+    ports: 
+      - 8000:8000
+    environment:
+      PORT: 8000
+      MONGODB_URI: mongodb://database:27017 # "database" refers to the container's name
+      DB_NAME: DigitalerZwillingHerne
+    networks:
+      myNetwork:
+        aliases:
+          - backend
+        # ipv4_address: 172.16.238.7
+    volumes:
+      # Add the current directory as a volume in /app.
+      # That way changes are persisted when the conatiner shuts down.
+      - ./DT-Herne-Backend:/app
+    depends_on:
+      - mongodb
+  
+  frontend:
+    container_name: frontend
+    build: DT-Herne-Frontend/ # Use the dockerfile in this directory to build
+    networks:
+      myNetwork:
+        aliases:
+          - frontend
+    ports: 
+      - 8080:80
+
+networks:
+  myNetwork:
+    name: myNetwork
+    # ipam:
+    #   driver: default
+    #   config:
+    #    - subnet: "172.16.238.0/24"
