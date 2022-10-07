@@ -1,0 +1,81 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:4.4.5
+    restart: always
+    networks:
+      dtHerneNetwork:
+        aliases:
+          - database
+    deploy:
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
+  
+  mongo-seed:
+    image: mongo:4.4.5
+    # Wait for mongo to initialize, then import data
+    entrypoint: [ "bash", "-c", "sleep 20 && sh '/tmp/import.sh'"]
+    networks:
+      - dtHerneNetwork
+    depends_on:
+      - mongodb
+    volumes:
+      - dt-herne-mongodb:/tmp
+    deploy:
+      restart_policy:
+        condition: none # equivalent of "restart: 'no'" for swarm mode
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
+  
+  backend:
+    image: t16h05008/dt-herne-backend:latest
+    ports: 
+      - 8000:8000
+    environment:
+      PORT: 8000
+      MONGODB_URI: mongodb://database:27017
+      DB_NAME: DigitalerZwillingHerne
+    networks:
+      dtHerneNetwork:
+        aliases:
+          - backend
+    volumes:
+      - dt-herne-backend:/app/data
+    depends_on:
+      - mongodb
+    deploy:
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
+  
+  frontend:
+    image: t16h05008/dt-herne-frontend:latest
+    networks:
+      - dtHerneNetwork
+      - reverseproxy
+    ports: 
+      - 8080:80
+    deploy:
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
+
+networks:
+  dtHerneNetwork:
+    name: dtHerneNetwork
+  reverseproxy:
+    external: true
+    
+volumes:
+  dt-herne-backend:
+  dt-herne-mongodb:
