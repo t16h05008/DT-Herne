@@ -14,7 +14,8 @@ services:
   # Used to populate the mongodb, then exits
   mongo-seed:
     container_name: "database-seed"
-    build: ./DT-Herne-Database/data # use the dockerfile in this subdirectory
+    build: 
+      context: "DT-Herne-Database/data"
     networks:
       - myNetwork
     depends_on:
@@ -23,7 +24,8 @@ services:
   backend:
     container_name: backend
     restart: always
-    build: DT-Herne-Backend/ # Use the dockerfile in this directory to build
+    build: 
+      context: "DT-Herne-Backend"
     # Couldn't get container-network internal communication to work so far.
     # expose:
     #    - 8000
@@ -39,15 +41,14 @@ services:
           - backend
         # ipv4_address: 172.16.238.7
     volumes:
-      # Add the current directory as a volume in /app.
-      # That way changes are persisted when the conatiner shuts down.
-      - ./DT-Herne-Backend:/app
+      - ./DT-Herne-Backend/data:/app/data
     depends_on:
       - mongodb
   
   frontend:
     container_name: frontend
-    build: DT-Herne-Frontend/ # Use the dockerfile in this directory to build
+    build: 
+      context: "DT-Herne-Frontend"
     networks:
       myNetwork:
         aliases:
