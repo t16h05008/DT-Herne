@@ -1,65 +1,81 @@
-version: '3.9'
+version: '3.8'
 services:
   mongodb:
-    container_name: "database"
     image: mongo:4.4.5
     restart: always
     networks:
-      myNetwork:
+      dtHerneNetwork:
         aliases:
           - database
-    expose:
-      - 27017 # expose to other containers on the same network only
+    deploy:
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
   
-  # Used to populate the mongodb, then exits
   mongo-seed:
-    container_name: "database-seed"
-    build: 
-      context: "DT-Herne-Database/data"
+    image: mongo:4.4.5
+    # Wait for mongo to initialize, then import data
+    entrypoint: [ "bash", "-c", "sleep 20 && sh '/tmp/import.sh'"]
     networks:
-      - myNetwork
+      - dtHerneNetwork
     depends_on:
-      - mongodb # db has to be up first
+      - mongodb
+    volumes:
+      - dt-herne-mongodb:/tmp
+    deploy:
+      restart_policy:
+        condition: none # equivalent of "restart: 'no'" for swarm mode
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
   
   backend:
-    container_name: backend
-    restart: always
-    build: 
-      context: "DT-Herne-Backend"
-    # Couldn't get container-network internal communication to work so far.
-    # expose:
-    #    - 8000
+    image: t16h05008/dt-herne-backend:latest
     ports: 
       - 8000:8000
     environment:
       PORT: 8000
-      MONGODB_URI: mongodb://database:27017 # "database" refers to the container's name
+      MONGODB_URI: mongodb://database:27017
       DB_NAME: DigitalerZwillingHerne
     networks:
-      myNetwork:
+      dtHerneNetwork:
         aliases:
           - backend
-        # ipv4_address: 172.16.238.7
     volumes:
-      - ./DT-Herne-Backend/data:/app/data
+      - dt-herne-backend:/app/data
     depends_on:
       - mongodb
+    deploy:
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
   
   frontend:
-    container_name: frontend
-    build: 
-      context: "DT-Herne-Frontend"
+    image: t16h05008/dt-herne-frontend:latest
     networks:
-      myNetwork:
-        aliases:
-          - frontend
+      - dtHerneNetwork
+      - reverseproxy
     ports: 
       - 8080:80
+    deploy:
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+         - "node.role==worker"
+         - "node.labels.stage==test"
 
 networks:
-  myNetwork:
-    name: myNetwork
-    # ipam:
-    #   driver: default
-    #   config:
-    #    - subnet: "172.16.238.0/24"
+  dtHerneNetwork:
+    name: dtHerneNetwork
+  reverseproxy:
+    external: true
+    
+volumes:
+  dt-herne-backend:
+  dt-herne-mongodb:
