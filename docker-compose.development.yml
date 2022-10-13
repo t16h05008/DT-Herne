@@ -1,0 +1,72 @@
+version: '3.9'
+services:
+  mongodb:
+    container_name: "database"
+    hostname: "database"
+    image: mongo:4.4.5
+    restart: always
+    network_mode: "bridge"
+    networks:
+      myNetwork:
+        aliases:
+          - database
+        ipv4_address: 172.50.0.25
+    expose:
+      - 27017 # expose to other containers on the same network only
+  
+  # Used to populate the mongodb, then exits
+  mongo-seed:
+    container_name: "database-seed"
+    build: 
+      context: "DT-Herne-Database/data"
+    network_mode: "bridge"
+    networks:
+      myNetwork:
+    depends_on:
+      - mongodb # db has to be up first
+  
+  backend:
+    container_name: backend
+    hostname: backend
+    restart: always
+    build: 
+      context: "DT-Herne-Backend"
+    ports: 
+      - 8000:8000 # external:internal
+    environment:
+      MONGODB_URI: mongodb://database:27017 # "database" refers to the container's name
+      DB_NAME: DigitalerZwillingHerne
+    network_mode: "bridge"
+    networks:
+      myNetwork:
+        aliases:
+          - backend
+        ipv4_address: 172.50.0.24
+    volumes:
+      - ./DT-Herne-Backend/data:/app/data
+    depends_on:
+      - mongodb
+  
+  frontend:
+    container_name: frontend
+    hostname: frontend
+    build: 
+      context: "DT-Herne-Frontend"
+    volumes:
+      - ./DT-Herne-Frontend/dist:/usr/share/nginx/html
+    network_mode: "bridge"
+    networks:
+      myNetwork:
+        aliases:
+          - frontend
+        ipv4_address: 172.50.0.23
+    ports: 
+      - 8080:80
+
+networks:
+  myNetwork:
+    name: myNetwork
+    ipam:
+      driver: default
+      config:
+       - subnet: "172.50.0.0/16"
