@@ -1,9 +1,11 @@
 [submodule "DT-Herne-Backend"]
 	path = DT-Herne-Backend
 	url = https://github.com/t16h05008/DT-Herne-Backend
+	branch = "herne-wanne"
 [submodule "DT-Herne-Frontend"]
 	path = DT-Herne-Frontend
 	url = https://github.com/t16h05008/DT-Herne-Frontend
+	branch = "herne-wanne"
 [submodule "DT-Herne-Data-Management"]
 	path = DT-Herne-Data-Management
 	url = https://github.com/t16h05008/DT-Herne-Data-Management
