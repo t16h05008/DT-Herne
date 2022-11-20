@@ -1,81 +1,76 @@
 version: '3.8'
 services:
-  mongodb:
+  dt-herne-wanne-mongodb:
+    container_name: dt-herne-wanne-mongodb
     image: mongo:4.4.5
-    restart: always
     networks:
       dtHerneNetwork:
         aliases:
-          - database
-    deploy:
-      placement:
-        constraints:
-         - "node.role==worker"
-         - "node.labels.stage==test"
+          - dt-herne-wanne-database
+        ipv4_address: 172.20.0.36
+    restart: "always"
   
-  mongo-seed:
+  dt-herne-wanne-mongo-seed:
+    container_name: dt-herne-wanne-mongo-seed
     image: mongo:4.4.5
     # Wait for mongo to initialize, then import data
-    entrypoint: [ "bash", "-c", "sleep 20 && sh '/tmp/import.sh'"]
-    networks:
-      - dtHerneNetwork
-    depends_on:
-      - mongodb
-    volumes:
-      - dt-herne-mongodb:/tmp
-    deploy:
-      restart_policy:
-        condition: none # equivalent of "restart: 'no'" for swarm mode
-      placement:
-        constraints:
-         - "node.role==worker"
-         - "node.labels.stage==test"
-  
-  backend:
-    image: t16h05008/dt-herne-backend:latest
-    ports: 
-      - 8000:8000
-    environment:
-      PORT: 8000
-      MONGODB_URI: mongodb://database:27017
-      DB_NAME: DigitalerZwillingHerne
+    # Use the import file for this stack
+    entrypoint: [ "bash", "-c", "sleep 20 && sh '/tmp/import.herne-wanne.sh'"]
     networks:
       dtHerneNetwork:
         aliases:
-          - backend
+          - dt-herne-wanne-database-seed
+        ipv4_address: 172.20.0.35
+    depends_on:
+      - dt-herne-wanne-mongodb
+    volumes:
+      # Put json files in this Volume before launching the stack
+      - dt-herne-mongodb:/tmp
+    restart: "no"
+  
+  dt-herne-wanne-backend:
+    container_name: dt-herne-wanne-backend
+    hostname: dt-herne-wanne-backend
+    #build: 
+    #  context: "DT-Herne-Backend"
+    image: t16h05008/dt-herne-wanne-backend:latest
+    ports: 
+      - 8201:8000
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+      DB_NAME: ${DB_NAME}
+    networks:
+      dtHerneNetwork:
+        aliases:
+          - dt-herne-wanne-backend
+        ipv4_address: 172.20.0.34
+    restart: "always"
     volumes:
       - dt-herne-backend:/app/data
     depends_on:
-      - mongodb
-    deploy:
-      restart_policy:
-        condition: any
-      placement:
-        constraints:
-         - "node.role==worker"
-         - "node.labels.stage==test"
+      - dt-herne-wanne-mongodb
   
-  frontend:
-    image: t16h05008/dt-herne-frontend:latest
+  dt-herne-wanne-frontend:
+    container_name: dt-herne-wanne-frontend
+    hostname: dt-herne-wanne-frontend
+    restart: "always"
+    #build: 
+    #  context: "DT-Herne-Frontend"
+    image: t16h05008/dt-herne-wanne-frontend:latest
     networks:
-      - dtHerneNetwork
-      - reverseproxy
+      dtHerneNetwork:
+        aliases:
+          - dt-herne-wanne-frontend
+        ipv4_address: 172.20.0.33
     ports: 
-      - 8080:80
-    deploy:
-      restart_policy:
-        condition: any
-      placement:
-        constraints:
-         - "node.role==worker"
-         - "node.labels.stage==test"
+      - 8200:80
 
 networks:
   dtHerneNetwork:
-    name: dtHerneNetwork
-  reverseproxy:
-    external: true
-    
+    external: true # Network exists even when stack is not running
+
 volumes:
   dt-herne-backend:
+    external: true
   dt-herne-mongodb:
+    external: true
