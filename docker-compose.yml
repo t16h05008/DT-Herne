@@ -64,12 +64,20 @@ services:
         ipv4_address: 172.20.0.33
     ports: 
       - 8200:80
+    volumes:
+      - dt-herne-frontend-360images:/usr/share/nginx/html/static/images/360deg
+      - dt-herne-frontend-videos:/usr/share/nginx/html/static/videos
+
 
 networks:
   dtHerneNetwork:
     external: true # Network exists even when stack is not running
 
 volumes:
+  dt-herne-frontend-360images:
+    external: true
+  dt-herne-frontend-videos:
+    external: true
   dt-herne-backend:
     external: true
   dt-herne-mongodb:
