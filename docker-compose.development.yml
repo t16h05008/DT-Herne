@@ -1,55 +1,56 @@
 version: '3.9'
 services:
-  mongodb:
-    container_name: "database"
-    hostname: "database"
+  dt-herne-wanne-mongodb:
+    container_name: "dt-herne-wanne-database"
+    hostname: "dt-herne-wanne-database"
     image: mongo:4.4.5
     restart: always
     network_mode: "bridge"
     networks:
       myNetwork:
         aliases:
-          - database
+          - dt-herne-wanne-database
         ipv4_address: 172.50.0.25
     expose:
       - 27017 # expose to other containers on the same network only
   
   # Used to populate the mongodb, then exits
-  mongo-seed:
-    container_name: "database-seed"
+  dt-herne-wanne-mongo-seed:
+    container_name: "dt-herne-wanne-database-seed"
     build: 
       context: "DT-Herne-Database/data"
+    entrypoint: [ "bash", "-c", "sleep 20 && sh '/tmp/import.herne-wanne.sh'"]
     network_mode: "bridge"
     networks:
       myNetwork:
     depends_on:
-      - mongodb # db has to be up first
+      - dt-herne-wanne-mongodb # db has to be up first
   
-  backend:
-    container_name: backend
-    hostname: backend
+  dt-herne-wanne-backend:
+    container_name: dt-herne-wanne-backend
+    hostname: dt-herne-wanne-backend
     restart: always
     build: 
       context: "DT-Herne-Backend"
     ports: 
       - 8000:8000 # external:internal
     environment:
-      MONGODB_URI: mongodb://database:27017 # "database" refers to the container's name
+      MONGODB_URI: mongodb://dt-herne-wanne-database:27017 # refers to the container's name
       DB_NAME: DigitalerZwillingHerne
     network_mode: "bridge"
     networks:
       myNetwork:
         aliases:
-          - backend
+          - dt-herne-wanne-backend
         ipv4_address: 172.50.0.24
     volumes:
       - ./DT-Herne-Backend/data:/app/data
     depends_on:
-      - mongodb
+      - dt-herne-wanne-mongodb
   
-  frontend:
-    container_name: frontend
-    hostname: frontend
+  dt-herne-wanne-frontend:
+    container_name: dt-herne-wanne-frontend
+    hostname: dt-herne-wanne-frontend
     build: 
       context: "DT-Herne-Frontend"
     volumes:
@@ -58,7 +59,7 @@ services:
     networks:
       myNetwork:
         aliases:
-          - frontend
+          - dt-herne-wanne-frontend
         ipv4_address: 172.50.0.23
     ports: 
       - 8080:80
